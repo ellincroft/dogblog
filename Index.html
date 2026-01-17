@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TheBonnieBlog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>For Dogs Sake!</h1>
+  <p>Far from a dog trainer, these are my observations from studying my own puppy alongside other dogs and dog walkers.</p>
+</header>
+
+<div class="container">
+  <h2>Posts!</h2>
+  <div id="posts"></div>
+</div>
+
+<script>
+let posts = JSON.parse(localStorage.getItem("dogBlogPosts")) || [];
+
+window.onload = function() {
+  posts.forEach(post => renderPost(post));
+};
+
+function renderPost(post) {
+  let postDiv = document.createElement("div");
+  postDiv.className = "post";
+
+  let imageHTML = post.image ? `<img src="${post.image}">` : "";
+
+  postDiv.innerHTML = `
+    <h3>${post.title}</h3>
+    <div class="date">${post.date}</div>
+    ${imageHTML}
+    <p>${post.content}</p>
+  `;
+
+  document.getElementById("posts").appendChild(postDiv);
+}
+</script>
+<footer>
+<nav>
+<a href="index.html">Home</a>
+<a href="QA.html">Q&A</a>
+</nav>
+</footer>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ask Me!</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Advice Q&A</h1>
+  <p>Ask me a question and i'll do my best to offer my advice from my own expierience.</p>
+</header>
+
+<div class="container">
+
+  <h2>Ask a Question</h2>
+  <input id="name" placeholder="Your name">
+  <textarea id="question" placeholder="Ask me here"></textarea>
+  <button onclick="submitQuestion()">Speak</button>
+
+  <hr>
+
+  <h2>Questions & Answers</h2>
+  <div id="qaList"></div>
+
+</div>
+
+<script>
+let questions = JSON.parse(localStorage.getItem("dogQA")) || [];
+
+window.onload = function() {
+  questions.forEach(q => renderQA(q));
+};
+
+function submitQuestion() {
+  let name = document.getElementById("name").value;
+  let questionText = document.getElementById("question").value;
+
+  if (!name || !questionText) {
+    alert("Please enter your name and question.");
+    return;
+  }
+
+  let question = {
+    id: Date.now(),
+    name,
+    question: questionText,
+    answer: ""
+  };
+
+  questions.push(question);
+  localStorage.setItem("dogQA", JSON.stringify(questions));
+
+  renderQA(question);
+
+  document.getElementById("name").value = "";
+  document.getElementById("question").value = "";
+}
+
+function renderQA(q) {
+  let div = document.createElement("div");
+  div.className = "post";
+
+  let answerHTML = q.answer ? `<p><strong>Answer:</strong> ${q.answer}</p>` : `<p><em>Awaiting answer</em></p>`;
+
+  div.innerHTML = `
+    <p><strong>${q.name} asks:</strong></p>
+    <p>${q.question}</p>
+    ${answerHTML}
+  `;
+
+  document.getElementById("qaList").prepend(div);
+}
+</script>
+
+</body>
+</html>

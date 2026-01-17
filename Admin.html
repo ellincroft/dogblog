@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel — TheBonnieBlog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Admin Panel</h1>
+  <p>Private dashboard for managing Posts</p>
+</header>
+
+<div class="container" id="loginBox">
+  <h2>Login</h2>
+  <input type="password" id="password" placeholder="Enter admin password">
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="container" id="adminPanel" style="display:none;">
+
+  <h2>Share The Love!</h2>
+
+  <input id="title" placeholder="Post title">
+  <textarea id="content" placeholder="Ready,Set,Go!"></textarea>
+  <input type="file" id="image" accept="image/*">
+
+  <button onclick="addPost()">Release!</button>
+
+  <hr>
+
+  <h2>Manage Posts</h2>
+  <div id="posts"></div>
+<hr>
+
+<h2>Manage Q&A</h2>
+
+<div id="qaAdmin"></div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = "Jason1978";  // change this!
+
+let posts = JSON.parse(localStorage.getItem("dogBlogPosts")) || [];
+
+function login() {
+  let password = document.getElementById("password").value;
+
+  if (password === ADMIN_PASSWORD) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    loadPosts();
+loadQA()
+  } else {
+    alert("Incorrect password");
+  }
+}
+
+function loadPosts() {
+  document.getElementById("posts").innerHTML = "";
+  posts.forEach(post => renderPost(post));
+}
+
+function addPost() {
+  let title = document.getElementById("title").value;
+  let content = document.getElementById("content").value;
+  let imageFile = document.getElementById("image").files[0];
+
+  if (!title || !content) {
+    alert("Please write a title and observation first.");
+    return;
+  }
+
+  let date = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  if (imageFile) {
+    let reader = new FileReader();
+    reader.onload = function() {
+      savePost(title, content, date, reader.result);
+    };
+    reader.readAsDataURL(imageFile);
+  } else {
+    savePost(title, content, date, "");
+  }
+}
+
+function savePost(title, content, date, image) {
+  let post = {
+    id: Date.now(),
+    title,
+    content,
+    date,
+    image
+  };
+
+  posts.unshift(post);
+  localStorage.setItem("dogBlogPosts", JSON.stringify(posts));
+
+  loadPosts();
+
+  document.getElementById("title").value = "";
+  document.getElementById("content").value = "";
+  document.getElementById("image").value = "";
+}
+
+function renderPost(post) {
+  let postDiv = document.createElement("div");
+  postDiv.className = "post";
+
+  let imageHTML = post.image ? `<img src="${post.image}">` : "";
+
+  postDiv.innerHTML = `
+    <h3>${post.title}</h3>
+    <div class="date">${post.date}</div>
+    ${imageHTML}
+    <p>${post.content}</p>
+    <button class="delete" onclick="deletePost(${post.id})">Destroy</button>
+  `;
+
+  document.getElementById("posts").appendChild(postDiv);
+}
+
+function deletePost(id) {
+  if (!confirm("Delete this observation?")) return;
+
+  posts = posts.filter(p => p.id !== id);
+  localStorage.setItem("dogBlogPosts", JSON.stringify(posts));
+  loadPosts();
+}
+let questions = JSON.parse(localStorage.getItem("dogQA")) || [];
+
+function loadQA() {
+  let container = document.getElementById("qaAdmin");
+  container.innerHTML = "";
+
+  questions.forEach(q => {
+    let div = document.createElement("div");
+    div.className = "post";
+
+    div.innerHTML = `
+      <p><strong>${q.name} asks:</strong></p>
+      <p>${q.question}</p>
+
+      <textarea id="answer-${q.id}" placeholder="Write your answer...">${q.answer}</textarea>
+      <br>
+      <button onclick="saveAnswer(${q.id})">Save Answer</button>
+      <button class="delete" onclick="deleteQuestion(${q.id})">Delete</button>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function saveAnswer(id) {
+  let answerText = document.getElementById("answer-" + id).value;
+
+  questions = questions.map(q => {
+    if (q.id === id) q.answer = answerText;
+    return q;
+  });
+
+  localStorage.setItem("dogQA", JSON.stringify(questions));
+  alert("Answer saved!");
+}
+
+function deleteQuestion(id) {
+  if (!confirm("Delete this question?")) return;
+
+  questions = questions.filter(q => q.id !== id);
+  localStorage.setItem("dogQA", JSON.stringify(questions));
+  loadQA();
+}
+
+</script>
+
+</body>
+</html>
