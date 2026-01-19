@@ -1,50 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>TheBonnieBlog</title>
+  <title>The Bonnie Blog</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>For Dogs Sake!</h1>
-  <p>Far from a dog trainer, these are my observations from studying my own puppy alongside other dogs and dog walkers.</p>
-</header>
+<h1>The Bonnie Blog</h1>
+<div id="blogPosts"></div>
 
-<div class="container">
-  <h2>Posts!</h2>
-  <div id="posts"></div>
-</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-<script>
-let posts = JSON.parse(localStorage.getItem("dogBlogPosts")) || [];
-
-window.onload = function() {
-  posts.forEach(post => renderPost(post));
+const firebaseConfig = {
+  apiKey: "AIzaSyB2zeIykpesNlSVRj33gQVU0ieYpKlkBoA",
+  authDomain: "thebonnieblog-a27be.firebaseapp.com",
+  projectId: "thebonnieblog-a27be",
+  storageBucket: "thebonnieblog-a27be.firebasestorage.app",
+  messagingSenderId: "781085626785",
+  appId: "1:781085626785:web:df0616fb979c2856317be0"
 };
 
-function renderPost(post) {
-  let postDiv = document.createElement("div");
-  postDiv.className = "post";
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  let imageHTML = post.image ? `<img src="${post.image}">` : "";
+const blogPosts = document.getElementById("blogPosts");
 
-  postDiv.innerHTML = `
-    <h3>${post.title}</h3>
-    <div class="date">${post.date}</div>
-    ${imageHTML}
-    <p>${post.content}</p>
-  `;
-
-  document.getElementById("posts").appendChild(postDiv);
+async function loadPosts() {
+  const snapshot = await getDocs(collection(db, "posts"));
+  snapshot.forEach(doc => {
+    const post = doc.data();
+    blogPosts.innerHTML += `
+      <div class="post">
+        <h2>${post.title}</h2>
+        <p>${post.date}</p>
+        <img src="${post.image}" style="max-width:100%">
+        <p>${post.content}</p>
+      </div>
+    `;
+  });
 }
+
+loadPosts();
 </script>
-<footer>
-<nav>
-<a href="index.html">Home</a>
-<a href="QA.html">Q&A</a>
-</nav>
-</footer>
+
 </body>
 </html>
-
