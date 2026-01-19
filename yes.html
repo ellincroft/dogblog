@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>The Bonnie Blog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>The Bonnie Blog</h1>
+<div id="blogPosts"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB2zeIykpesNlSVRj33gQVU0ieYpKlkBoA",
+  authDomain: "thebonnieblog-a27be.firebaseapp.com",
+  projectId: "thebonnieblog-a27be",
+  storageBucket: "thebonnieblog-a27be.firebasestorage.app",
+  messagingSenderId: "781085626785",
+  appId: "1:781085626785:web:df0616fb979c2856317be0"
+};
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const blogPosts = document.getElementById("blogPosts");
+
+async function loadPosts() {
+  const snapshot = await getDocs(collection(db, "posts"));
+  snapshot.forEach(doc => {
+    const post = doc.data();
+    blogPosts.innerHTML += `
+      <div class="post">
+        <h2>${post.title}</h2>
+        <p>${post.date}</p>
+        <img src="${post.image}" style="max-width:100%">
+        <p>${post.content}</p>
+      </div>
+    `;
+  });
+}
+
+loadPosts();
+</script>
+
+</body>
+</html>
